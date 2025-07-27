@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const easyLabel = document.getElementById('easy-label');
     const mediumLabel = document.getElementById('medium-label');
     const hardLabel = document.getElementById('hard-label');
-    const cardStatsContainer = document.querySelector('.stats-cards');
+    const cardStatsContainer = document.querySelector('.stats-card');
 
     function validateUsername(userName){
         if(userName.trim() == ""){
@@ -28,13 +28,16 @@ document.addEventListener('DOMContentLoaded', function() {
         try{
             searchButton.textContent = 'Searching...';
             searchButton.disabled = true;
+            //statsContainer.classList.add('hidden');
 
             const response = await fetch(url);
             if(!response.ok){
                 throw new Error('User not found');
             }
-            const data = await response.json();
-            console.log('logging data = ',data);
+            const parsedData = await response.json();
+            console.log('logging data = ',parsedData);
+
+            displayUserStats(parsedData);
         }
         catch(error){
             statsContainer.innerHTML = `<h2 class="error-message">${error.message}</h2>`;
@@ -44,6 +47,47 @@ document.addEventListener('DOMContentLoaded', function() {
             searchButton.textContent = 'Search';
             searchButton.disabled = false;
         }
+    }
+
+    function updateProgress(solved, total, label, circle) {
+        const progressDegree = solved / total * 100;
+        circle.style.setProperty('--progress-degree', `${progressDegree}%`);
+        label.textContent = `${solved} / ${total}`;
+    }
+
+    const displayUserStats = (parsedData) => {
+        const totalQuestions = parsedData.totalQuestions;
+        const totalEasyQuestions = parsedData.totalEasy;
+        const totalMediumQuestions = parsedData.totalMedium;
+        const totalHardQuestions = parsedData.totalHard;
+
+        const solvedTotalQuestions = parsedData.totalSolved;
+        const solvedTotalEasyQuestions = parsedData.easySolved;
+        const solvedTotalMediumQuestions = parsedData.mediumSolved;
+        const solvedTotalHardQuestions = parsedData.hardSolved;
+
+        updateProgress(solvedTotalEasyQuestions, totalEasyQuestions, easyLabel, easyProgressCircle);
+        updateProgress(solvedTotalMediumQuestions, totalMediumQuestions, mediumLabel, mediumProgressCircle);
+        updateProgress(solvedTotalHardQuestions, totalHardQuestions, hardLabel, hardProgressCircle);
+
+        const cardsData = [
+            {label: "Questions Solved:", value: solvedTotalQuestions, icon: "fa-question"},
+            {label: "Ranking:", value: parsedData.ranking, icon: "fa-trophy"},
+            {label: "Acceptance Rate:", value: parsedData.acceptanceRate, icon: "fa-check"},
+            {label: "Contribution Points:", value: parsedData.contributionPoints, icon: "fa-star"},
+            {label: "Reputation:", value: parsedData.reputation, icon: "fa-users"},
+
+        ];
+
+        console.log('cardsData = ', cardsData);
+
+        cardStatsContainer.innerHTML = cardsData.map(data => (
+            `<div class="card">
+                <i class="fa ${data.icon}"></i>
+                <h4>${data.label}</h4>
+                <p>${data.value ?? 'N/A'}</p>
+            </div>`
+        )).join('');
     }
 
     searchButton.addEventListener('click', function(){
