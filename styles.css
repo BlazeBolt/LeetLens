@@ -117,8 +117,8 @@ h1 {
 }
 
 .hard-progress {
-    background: conic-gradient(#f953c6 var(--progress-degree, 0%), #b91d73 0%);
-    border: 4px solid #f953c6;
+   background: conic-gradient(#ff4d4f var(--progress-degree, 0%), #8b0000 0%);
+    border: 4px solid #ff4d4f;
 }
 
 .circle span {
@@ -126,7 +126,7 @@ h1 {
     z-index: 2;
 }
 
-.stats-cards {
+.stats-card {
     margin: 30px;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
